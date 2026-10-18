@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MOOC Study Hub</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#1c2230;--mute:#667085;--line:#e3e6ec;--accent:#2f5bea;--accent-soft:#e8eefe;--ok:#12805c;--ok-soft:#e2f5ee;--bad:#c0342b;--bad-soft:#fdeceb;--warn:#a15c07;--warn-soft:#fff3dc}
+@media (prefers-color-scheme:dark){:root{--bg:#12151c;--card:#1b2029;--ink:#e8ebf2;--mute:#9aa3b5;--line:#2b3240;--accent:#7b9bff;--accent-soft:#232c48;--ok:#4cc79a;--ok-soft:#173226;--bad:#ff837a;--bad-soft:#3a1d1c;--warn:#f0b35a;--warn-soft:#3a2d14}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.bar{max-width:920px;margin:auto;padding:12px 16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+h1{font-size:18px;margin:0;flex:1 1 auto}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+nav button{border:0;background:none;color:var(--mute);padding:8px 14px;border-radius:8px;font:inherit;cursor:pointer}
+nav button.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
+main{max-width:920px;margin:auto;padding:20px 16px 80px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+button.btn{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:10px 18px;font:inherit;font-weight:600;cursor:pointer}
+button.btn.alt{background:var(--accent-soft);color:var(--accent)}
+button.btn:disabled{opacity:.5;cursor:default}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:5px 12px;font:inherit;font-size:14px;cursor:pointer}
+.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+.tag{font-size:12px;color:var(--mute);background:var(--bg);border-radius:6px;padding:2px 8px}
+.q h3{margin:6px 0 12px;font-size:16.5px;font-weight:600}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:7px 0;cursor:pointer}
+.opt:hover{border-color:var(--accent)}
+.opt input{margin-top:5px}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.locked{cursor:default}
+.exp{margin-top:10px;padding:10px 12px;border-radius:8px;background:var(--warn-soft);color:var(--ink);font-size:15px}
+.verdict{font-weight:700;font-size:14px}
+.verdict.ok{color:var(--ok)}.verdict.bad{color:var(--bad)}
+.score{font-size:42px;font-weight:700;margin:0}
+.muted{color:var(--mute)}
+.bar-track{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar-fill{height:100%;background:var(--accent)}
+iframe{width:100%;height:75vh;border:1px solid var(--line);border-radius:10px;background:#fff}
+.empty{text-align:center;padding:40px 16px;color:var(--mute)}
+ul.pts{margin:8px 0 0;padding-left:20px}ul.pts li{margin:5px 0}
+select{font:inherit;padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+code{background:var(--bg);padding:1px 6px;border-radius:5px}
+.rev-nav{position:sticky;top:57px;z-index:4;background:var(--bg);padding:8px 0;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.rev-nav input[type=search]{flex:1 1 220px;font:inherit;padding:8px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+table.rt{width:100%;border-collapse:collapse;font-size:14.5px}
+table.rt th,table.rt td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+table.rt th{background:var(--accent-soft);color:var(--accent)}
+.tbl-wrap{overflow-x:auto}
+details.sec{border:1px solid var(--line);border-radius:10px;margin:8px 0;padding:2px 14px;background:var(--card)}
+details.sec summary{cursor:pointer;font-weight:600;padding:10px 0}
+.fm{font-family:Consolas,monospace;font-size:14px}
+mark{background:var(--warn-soft);color:var(--ink);border-radius:3px}
+@media print{header,.rev-nav,.no-print{display:none!important}details.sec{break-inside:avoid}details.sec>*{display:block}body{background:#fff}}
+</style>
+</head>
+<body>
+<header><div class="bar">
+  <h1>📡 MOOC Study Hub <span class="muted" style="font-weight:400">· Remote Sensing</span></h1>
+  <nav id="nav"></nav>
+</div></header>
+<main id="main"></main>
+
+<script src="questions.js"></script>
+<script src="concepts.js"></script>
+<script src="notes.js"></script>
+<script src="revision.js"></script>
+<script>
+const $ = (s, r=document) => r.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const L = i => String.fromCharCode(97 + i);
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+const Q = window.QUESTIONS.map((q, i) => ({...q, id: `${q.a}-${i}`}));
+const assignments = [...new Set(Q.map(q => q.a))].sort((a,b)=>a-b);
+const topics = [...new Set(Q.map(q => q.topic))];
+
+let cfg = Object.assign({count: 10, asg: [], topic: 'all', weak: false}, store.get('cfg', {}));
+let tab = 'practice', test = null;
+
+function shuffle(a){ a = a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+function buildTest(){
+  const stats = store.get('stats', {});
+  let pool = Q.filter(q => (!cfg.asg.length || cfg.asg.includes(q.a)) && (cfg.topic === 'all' || q.topic === cfg.topic));
+  if(cfg.weak){
+    const w = pool.filter(q => (stats[q.id]?.wrong || 0) > 0);
+    pool = w.length ? w : pool;
+  }
+  const n = cfg.count === 0 ? pool.length : Math.min(cfg.count, pool.length);
+  test = { qs: shuffle(pool).slice(0, n), ans: {}, done: false };
+}
+
+function render(){
+  $('#nav').innerHTML = [['practice','Practice test'],['instant','Instant feedback test'],['notes','Notes'],['revision','Revision sheet'],['concepts','Exam concepts'],['progress','Progress']]
+    .map(([k,l]) => `<button class="${tab===k?'on':''}" onclick="go('${k}')">${l}</button>`).join('');
+  ({practice: renderPractice, instant: renderPractice, notes: renderNotes, revision: renderRevision, concepts: renderConcepts, progress: renderProgress})[tab]();
+}
+const stash = {};
+function go(t){
+  if(tab === 'practice' || tab === 'instant') stash[tab] = test;
+  tab = t;
+  if(t === 'practice' || t === 'instant') test = stash[t] || null;
+  render(); window.scrollTo(0,0);
+}
+function redraw(){ const y = window.scrollY; drawQuestions(); window.scrollTo(0, y); }
+function recordStat(q, ok){
+  const stats = store.get('stats', {});
+  const s = stats[q.id] || {seen:0, wrong:0}; s.seen++; if(!ok) s.wrong++; s.last = ok; stats[q.id] = s;
+  store.set('stats', stats);
+}
+const isOk = (q, sel) => sel.length === q.ans.length && q.ans.every(i => sel.includes(i));
+
+/* ───── Practice ───── */
+function renderPractice(){
+  if(!test) buildTest();
+  const chips = assignments.map(a => `<button class="chip ${cfg.asg.includes(a)?'on':''}" onclick="togAsg(${a})">A${a}</button>`).join('');
+  const topicSel = `<select onchange="cfg.topic=this.value;saveCfg()"><option value="all">All topics</option>${topics.map(t=>`<option ${cfg.topic===t?'selected':''}>${esc(t)}</option>`).join('')}</select>`;
+  const cnt = `<select onchange="cfg.count=+this.value;saveCfg()">${[5,10,20,0].map(n=>`<option value="${n}" ${cfg.count===n?'selected':''}>${n||'All'} questions</option>`).join('')}</select>`;
+  $('#main').innerHTML = `
+  <div class="card">
+    <div class="row" style="margin-bottom:10px"><b>${tab==='instant'?'Instant feedback test':'Test setup'}</b><span class="muted">${Q.length} questions in bank · a new random set on every refresh</span></div>
+    ${tab==='instant'?'<div class="exp" style="margin:0 0 12px">Click an answer to see the result straight away: <b style="color:var(--ok)">green = correct answer</b>, <b style="color:var(--bad)">red = your wrong pick</b>. Multi-select questions have a "Check answer" button.</div>':''}
+    <div class="row">${chips}<span class="muted" style="font-size:13px">${cfg.asg.length?'':'(all assignments)'}</span></div>
+    <div class="row" style="margin-top:10px">${topicSel}${cnt}
+      <label class="row" style="gap:6px"><input type="checkbox" ${cfg.weak?'checked':''} onchange="cfg.weak=this.checked;saveCfg()"> Only questions I got wrong before</label>
+      <button class="btn alt" onclick="newTest()">🔀 New random test</button></div>
+  </div>
+  <div id="qs"></div>
+  <div id="foot"></div>`;
+  drawQuestions();
+}
+function saveCfg(){ store.set('cfg', cfg); newTest(); }
+function togAsg(a){ cfg.asg = cfg.asg.includes(a) ? cfg.asg.filter(x=>x!==a) : [...cfg.asg, a]; saveCfg(); }
+function newTest(){ buildTest(); renderPractice(); window.scrollTo(0,0); }
+
+function drawQuestions(){
+  const t = test, inst = tab === 'instant';
+  t.checked = t.checked || {};
+  if(!t.qs.length){ $('#qs').innerHTML = `<div class="card empty">No questions match these filters.</div>`; return; }
+  let correct = 0, checkedN = 0;
+  $('#qs').innerHTML = t.qs.map((q, n) => {
+    const sel = t.ans[q.id] || [];
+    const multi = q.ans.length > 1;
+    const locked = t.done || (inst && t.checked[q.id]);
+    const ok = isOk(q, sel);
+    if(locked && ok) correct++;
+    if(locked) checkedN++;
+    const opts = q.o.map((txt, i) => {
+      let cls = sel.includes(i) ? 'sel' : '';
+      if(locked){ if(q.ans.includes(i)) cls = 'right'; else if(sel.includes(i)) cls = 'wrong'; }
+      return `<label class="opt ${cls} ${locked?'locked':''}"><input type="${multi?'checkbox':'radio'}" name="q${n}" ${sel.includes(i)?'checked':''} ${locked?'disabled':''} onchange="pick('${q.id}',${i},${multi})"><span><b>${L(i)})</b> ${esc(txt)}</span></label>`;
+    }).join('');
+    const res = locked ? `<div class="verdict ${ok?'ok':'bad'}">${ok?'✔ Correct':sel.length?'✘ Incorrect — correct: '+q.ans.map(L).join(', '):'✘ Not answered — correct: '+q.ans.map(L).join(', ')}</div><div class="exp">💡 ${esc(q.e)}</div>` : '';
+    const chk = inst && multi && !locked ? `<button class="btn alt" ${sel.length?'':'disabled'} onclick="checkQ('${q.id}');redraw()">Check answer</button>` : '';
+    return `<div class="card q"><div class="row"><span class="tag">Q${n+1}</span><span class="tag">Assignment ${q.a}</span><span class="tag">${esc(q.topic)}</span>${multi?'<span class="tag">select all that apply</span>':''}</div><h3>${esc(q.q)}</h3>${opts}${chk}${res}</div>`;
+  }).join('');
+  if(!t.done){
+    const n = inst ? checkedN : Object.values(t.ans).filter(a=>a.length).length;
+    const label = inst ? `Finish test (${checkedN}/${t.qs.length} checked · ${correct} correct so far)` : `Submit test (${n}/${t.qs.length} answered)`;
+    $('#foot').innerHTML = `<div class="row"><button class="btn" onclick="submitTest()">${label}</button></div>`;
+  } else {
+    const pct = Math.round(100*correct/t.qs.length);
+    $('#foot').innerHTML = `<div class="card"><p class="score">${correct} / ${t.qs.length} <span class="muted" style="font-size:20px">(${pct}%)</span></p><div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div><div class="row" style="margin-top:14px"><button class="btn" onclick="newTest()">Try another random test</button><button class="btn alt" onclick="retryWrong()">Retry my wrong ones</button></div></div>`;
+  }
+}
+function pick(id, i, multi){
+  const cur = test.ans[id] || [];
+  test.checked = test.checked || {};
+  if(test.checked[id] || test.done) return;
+  test.ans[id] = multi ? (cur.includes(i) ? cur.filter(x=>x!==i) : [...cur, i]) : [i];
+  if(tab === 'instant' && !multi) checkQ(id);
+  redraw();
+}
+function checkQ(id){
+  test.checked = test.checked || {};
+  if(test.checked[id]) return;
+  const q = Q.find(x => x.id === id);
+  test.checked[id] = true;
+  recordStat(q, isOk(q, test.ans[id] || []));
+}
+function submitTest(){
+  test.checked = test.checked || {};
+  const unanswered = test.qs.filter(q => !(test.ans[q.id]||[]).length).length;
+  if(unanswered && !confirm(`${unanswered} question(s) unanswered. Submit anyway?`)) return;
+  test.done = true;
+  let correct = 0;
+  test.qs.forEach(q => {
+    const ok = isOk(q, test.ans[q.id] || []);
+    if(!test.checked[q.id]) recordStat(q, ok);
+    if(ok) correct++;
+  });
+  const hist = store.get('hist', []); hist.push({t: Date.now(), c: correct, n: test.qs.length}); store.set('hist', hist.slice(-100));
+  drawQuestions(); window.scrollTo(0, 0);
+}
+function retryWrong(){
+  const wrong = test.qs.filter(q => { const s = test.ans[q.id]||[]; return !(s.length===q.ans.length && q.ans.every(i=>s.includes(i))); });
+  if(!wrong.length){ alert('You got everything right! 🎉'); return; }
+  test = { qs: shuffle(wrong), ans: {}, done: false }; renderPractice(); window.scrollTo(0,0);
+}
+
+/* ───── Notes ───── */
+let noteIdx = store.get('noteIdx', 0);
+function renderNotes(){
+  const N = window.NOTES;
+  if(!N.length){
+    $('#main').innerHTML = `<div class="card empty"><h3>No notes yet</h3><p>Put your note PDFs in the <code>notes</code> folder (name them <code>01-…</code>, <code>02-…</code> to set the order), then tell Claude — it will add the summaries and exam concepts.</p></div>`;
+    return;
+  }
+  noteIdx = Math.max(0, Math.min(noteIdx, N.length-1)); store.set('noteIdx', noteIdx);
+  const n = N[noteIdx];
+  const done = store.get('noteDone', {});
+  $('#main').innerHTML = `
+  <div class="card">
+    <div class="row"><select onchange="noteIdx=+this.value;renderNotes()" style="flex:1;min-width:200px">${N.map((x,i)=>`<option value="${i}" ${i===noteIdx?'selected':''}>${done[x.file]?'✓ ':''}${i+1}. ${esc(x.title)}</option>`).join('')}</select>
+      <button class="btn alt" ${noteIdx===0?'disabled':''} onclick="noteIdx--;renderNotes()">← Prev</button>
+      <button class="btn" ${noteIdx===N.length-1?'disabled':''} onclick="noteIdx++;renderNotes()">Next →</button></div>
+    <div class="muted" style="margin-top:8px">Note ${noteIdx+1} of ${N.length} · <label><input type="checkbox" ${done[n.file]?'checked':''} onchange="markDone('${esc(n.file)}',this.checked)"> mark as revised</label></div>
+  </div>
+  <div class="card"><h3 style="margin-top:0">Summary</h3>${n.summary?`<p>${esc(n.summary)}</p>`:'<p class="muted">Summary not generated yet — ask Claude to summarise this note.</p>'}
+    ${n.concepts && n.concepts.length?`<h3>Likely exam concepts</h3><ul class="pts">${n.concepts.map(c=>`<li>${esc(c)}</li>`).join('')}</ul>`:''}</div>
+  <div id="pdfbox"></div>`;
+  const url = 'notes/' + encodeURIComponent(n.file);
+  fetch(url, {method: 'HEAD'}).then(r => {
+    if(!r.ok) throw 0;
+    $('#pdfbox').innerHTML = `<iframe src="${url}" title="${esc(n.title)}"></iframe>`;
+  }).catch(() => {
+    if(location.protocol === 'file:'){ $('#pdfbox').innerHTML = `<iframe src="${url}" title="${esc(n.title)}"></iframe>`; return; }
+    $('#pdfbox').innerHTML = `<div class="card empty">The original slides (<code>${esc(n.file)}</code>) are not included in this online version. Use the summary and exam points above, or open the PDF from your local <code>notes</code> folder.</div>`;
+  });
+}
+function markDone(f, v){ const d = store.get('noteDone', {}); d[f] = v; store.set('noteDone', d); }
+
+/* ───── Revision sheet ───── */
+function renderRevision(){
+  const R = window.REVISION, N = window.NOTES;
+  const sec = (id, title, body, open) => `<details class="sec" id="${id}" ${open?'open':''}><summary>${title}</summary><div style="padding-bottom:12px">${body}</div></details>`;
+  const hot = R.hot.map(h => `<div class="card"><div class="row"><b style="font-size:16.5px">${esc(h.t)}</b><span class="tag">${esc(h.s)}</span></div><ul class="pts">${h.p.map(p=>`<li>${esc(p)}</li>`).join('')}</ul></div>`).join('');
+  const fm = `<div class="tbl-wrap"><table class="rt"><tr><th>Name</th><th>Formula</th><th>Notes</th></tr>${R.formulas.map(f=>`<tr><td>${esc(f[0])}</td><td class="fm">${esc(f[1])}</td><td>${esc(f[2])}</td></tr>`).join('')}</table></div>`;
+  const tb = R.tables.map(t => `<h4 style="margin:16px 0 6px">${esc(t.title)}</h4><div class="tbl-wrap"><table class="rt"><tr>${t.head.map(h=>`<th>${esc(h)}</th>`).join('')}</tr>${t.rows.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table></div>`).join('');
+  const notes = N.map((n,i) => `<details class="sec"><summary>${i+1}. ${esc(n.title)} <span class="tag">${esc(n.file)}</span></summary><div style="padding-bottom:12px"><p>${esc(n.summary||'')}</p>${n.concepts&&n.concepts.length?`<b>Key exam points</b><ul class="pts">${n.concepts.map(c=>`<li>${esc(c)}</li>`).join('')}</ul>`:''}<button class="btn alt no-print" onclick="noteIdx=${i};store.set('noteIdx',${i});go('notes')">Open this note →</button></div></details>`).join('');
+  const asg = window.CONCEPTS.map(c => `<details class="sec"><summary>${esc(c.topic)} <span class="tag">${esc(c.from)}</span></summary><ul class="pts">${c.points.map(p=>`<li>${esc(p)}</li>`).join('')}</ul></details>`).join('');
+  const tips = `<ul class="pts">${R.tips.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>`;
+  $('#main').innerHTML = `
+  <div class="rev-nav no-print">
+    <input type="search" id="rsearch" placeholder="Search the whole revision sheet (e.g. emissivity, SAR, NDVI)…" oninput="revSearch(this.value)">
+    <a class="chip" href="#r-hot">High-yield</a><a class="chip" href="#r-fm">Formulas</a><a class="chip" href="#r-tb">Tables</a><a class="chip" href="#r-notes">Notes</a><a class="chip" href="#r-asg">By assignment</a>
+    <button class="chip" onclick="window.print()">🖨 Print / PDF</button>
+  </div>
+  <div id="rbody">
+  ${sec('r-hot','⭐ High-yield exam points (all lectures)', hot + `<div class="card"><b>Exam tips</b>${tips}</div>`, true)}
+  ${sec('r-fm','🧮 Formula sheet', fm)}
+  ${sec('r-tb','📊 Comparison tables', tb)}
+  ${sec('r-notes','📚 Summary of every note (in reading order)', notes)}
+  ${sec('r-asg','📝 Concepts from assignments (by topic)', asg)}
+  </div>`;
+}
+function revSearch(q){
+  q = q.trim().toLowerCase();
+  const body = $('#rbody');
+  body.querySelectorAll('mark').forEach(m => m.replaceWith(document.createTextNode(m.textContent)));
+  body.normalize();
+  const blocks = body.querySelectorAll('li, td, p, h4, summary');
+  const all = body.querySelectorAll('details.sec');
+  if(!q){ all.forEach((d,i)=>{ d.open = d.parentElement === body ? i === 0 : false; d.style.display=''; }); return; }
+  all.forEach(d => { d.style.display = ''; });
+  const hits = new Set();
+  blocks.forEach(b => {
+    if(b.textContent.toLowerCase().includes(q)){
+      hits.add(b);
+      const w = document.createTreeWalker(b, NodeFilter.SHOW_TEXT), nodes = [];
+      while(w.nextNode()) nodes.push(w.currentNode);
+      nodes.forEach(t => {
+        const i = t.textContent.toLowerCase().indexOf(q); if(i < 0) return;
+        const r = document.createRange(); r.setStart(t, i); r.setEnd(t, i + q.length);
+        const m = document.createElement('mark'); r.surroundContents(m);
+      });
+    }
+  });
+  all.forEach(d => { d.open = !!d.querySelector('mark'); if(!d.open && d.parentElement !== body) d.style.display = 'none'; });
+}
+
+/* ───── Concepts ───── */
+function renderConcepts(){
+  $('#main').innerHTML = `<p class="muted">Concepts most likely to appear in the exam, drawn from your assignment questions.</p>` +
+    window.CONCEPTS.map(c => `<div class="card"><div class="row"><b style="font-size:17px">${esc(c.topic)}</b><span class="tag">${esc(c.from)}</span></div><ul class="pts">${c.points.map(p=>`<li>${esc(p)}</li>`).join('')}</ul></div>`).join('');
+}
+
+/* ───── Progress ───── */
+function renderProgress(){
+  const stats = store.get('stats', {}), hist = store.get('hist', []);
+  const byTopic = topics.map(t => {
+    const qs = Q.filter(q => q.topic === t); let seen = 0, wrong = 0;
+    qs.forEach(q => { const s = stats[q.id]; if(s){ seen += s.seen; wrong += s.wrong; } });
+    return {t, seen, acc: seen ? Math.round(100*(seen-wrong)/seen) : null};
+  });
+  const weak = Q.filter(q => stats[q.id]?.wrong).sort((a,b)=>stats[b.id].wrong-stats[a.id].wrong).slice(0,8);
+  $('#main').innerHTML = `
+  <div class="card"><b>Accuracy by topic</b>${byTopic.map(x=>`<div style="margin:12px 0 0"><div class="row" style="justify-content:space-between"><span>${esc(x.t)}</span><span class="muted">${x.acc===null?'not attempted':x.acc+'% · '+x.seen+' answered'}</span></div><div class="bar-track"><div class="bar-fill" style="width:${x.acc||0}%"></div></div></div>`).join('')}</div>
+  <div class="card"><b>Recent tests</b>${hist.length?`<ul class="pts">${hist.slice(-8).reverse().map(h=>`<li>${new Date(h.t).toLocaleString()} — <b>${h.c}/${h.n}</b> (${Math.round(100*h.c/h.n)}%)</li>`).join('')}</ul>`:'<p class="muted">No tests taken yet.</p>'}</div>
+  <div class="card"><b>Your weakest questions</b>${weak.length?`<ul class="pts">${weak.map(q=>`<li>${esc(q.q)} <span class="tag">missed ${stats[q.id].wrong}×</span></li>`).join('')}</ul>`:'<p class="muted">Nothing missed yet.</p>'}</div>
+  <button class="btn alt" onclick="if(confirm('Reset all progress?')){localStorage.removeItem('stats');localStorage.removeItem('hist');renderProgress()}">Reset progress</button>`;
+}
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+notes/
+assignments/
+*.py
+*.bat
+node_modules/
